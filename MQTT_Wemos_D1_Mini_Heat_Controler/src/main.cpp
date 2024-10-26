@@ -40,32 +40,15 @@ float s1;
 float s2;
 float s3;
 int adr;
-uint_fast8_t amTemperature;  // is set by the sliders
-uint_fast8_t pmTemperature;  // is set by the sliders
-uint_fast8_t amTemp = 0;     // is set by the sliders
-uint_fast8_t pmTemp = 0;     // is set by the sliders
-uint_fast8_t AMtime;
-uint_fast8_t PMtime;
-uint_fast8_t Day;
-uint_fast8_t Hours;
-uint_fast8_t Minutes;
-uint_fast8_t seconds;
-uint_fast8_t amHours;
-uint_fast8_t amMinutes;
-uint_fast8_t pmHours;
-uint_fast8_t pmMinutes;
-bool Am;
-bool AmFlag;
-bool heaterStatus = false;
-// bool Reset = false;  // set when slider is moved
-bool StartUp = 1;
+uint_fast8_t amTemperature, pmTemperature, amTemp= 0, pmTemp = 0;     // is set by the sliders
+uint_fast8_t AMtime, PMtime ,Day, Hours,Minutes, seconds, amHours, amMinutes, pmHours, pmMinutes;
+bool Am,AmFlag, heaterStatus = false, StartUp = 1, heaterOn = false;
 // Timer-related variables
 unsigned long heaterOnTime = 0;
 const unsigned long heaterTimeout = 3600000;
 //const unsigned long heaterTimeout = 1800000;
 //const unsigned long heaterTimeout = 60000; //for debuging
-bool heaterOn = false;
-bool Flag = 0; //may not be needed
+
 
 /********************************************
       settup the time variables start
@@ -205,7 +188,6 @@ void loop() {
     if (heaterOn) {
       checkHeaterTimeout();
     }
-    delay(3000);
 }
 
 // put function definitions here:
