@@ -1,18 +1,15 @@
 //Setting.js
 import { StatusBar } from "expo-status-bar";
 import * as React from "react";
-//import Paho from "paho-mqtt";
-import { Client } from "react-native-paho-mqtt";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   SafeAreaView,
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-
+import { useFocusEffect } from "@react-navigation/native";
 import DatePickerModal from "./DatePickerModal"; // Adjust the path as necessary
 import TemperaturePicker from "./TemperaturePicker";
 import { styles } from "../Styles/styles";
@@ -40,10 +37,13 @@ const SettingsScreen = () => {
   const [isPMDatePickerVisible, setPMDatePickerVisibility] = useState(false);
   const [AMtime, setAMTime] = useState("");
   const [PMtime, setPMTime] = useState("");
-  // const [gaugeHours, setgaugeHours] = useState(0);
-  // const [gaugeMinutes, setgaugeMinutes] = useState(0);
-  // const [HeaterStatus, setHeaterStatus] = useState(false);
-  // const [targetTemperature, settargetTemperature] = useState(0);
+  // const [outSide, setOutSideTemp] = useState("");
+  // const [coolSide, setCoolSideTemp] = useState("");
+  // const [heater, setHeaterTemp] = useState("");
+  const [gaugeHours, setGaugeHours] = useState(0);
+  const [gaugeMinutes, setGaugeMinutes] = useState(0);
+  const [HeaterStatus, setHeaterStatus] = useState(false);
+  const [targetTemperature, setTargetTemperature] = useState(0);
   const [isConnected, setIsConnected] = useState(false);
   const handleOpenAMDatePicker = () => setAMDatePickerVisibility(true);
   const handleOpenPMDatePicker = () => setPMDatePickerVisibility(true);
@@ -70,226 +70,159 @@ const SettingsScreen = () => {
     }
   };
 
-  // const checkConnectionStatus = () => {
-  //   const status = mqttService.getConnectionStatus();
-  //   console.log("MQTT Connection Status:", status);
-  //   setIsConnected(status);
-  // };
-  useEffect(() => {
-    // const mqttService = new MqttService((message) => {
-    // Existing message callback logic
-
-    console.log("useEffect");
-    const onMessageArrived =
-      ((message) => {
-        console.log("Message received:", message.payloadString);
-        switch (message.destinationName) {
-          case "outSide":
-            setOutSide(parseInt(message.payloadString));
-            break;
-          case "coolSide":
-            setCoolSideTemp(parseInt(message.payloadString));
-            console.log("coolSide " + coolSide);
-            break;
-          case "heater":
-            setControlTemp(parseInt(message.payloadString));
-            break;
-          default:
-            console.log("Unknown topic:", message.destinationName);
-        }
-        // Log the updated values
-        // console.log("Current values:", {
-        //   outSide,
-        //   coolSide,
-        //   heater,
-        // });
-      },
-      setIsConnected()); // Pass the setIsConnected function
-
-    // Initialize the MQTT service
-
-    const service = new MqttService(
-      (message) => {
-        // Handle incoming message logic here
-        console.log("Received message:", message.payloadString);
-      },
-      setIsConnected(true) // Pass setIsConnected to update connection status
-    );
-
-    // Save the instance to state
-    setMqttService(service);
-
-    const mqtt = new MqttService(onMessageArrived);
-    setMqttService(mqtt);
-
-    mqtt.connect("Tortoise", "Hea1951Ter", {
-      onSuccess: () => {
-        console.log("TemperatureGraph Connected to MQTT broker");
-        mqtt.subscribe("outSide");
-        mqtt.subscribe("coolSide");
-        mqtt.subscribe("heater");
-      },
-      onFailure: (error) => {
-        console.error("Failed to connect to MQTT broker", error);
-        setIsConnected(false);
-      },
-    });
-
-    return () => {
-      // Disconnect MQTT when component unmounts
-      if (mqttService) {
-        console.log("Disconnecting MQTT");
-        mqttService.disconnect();
-      }
-    };
-  }, []);
-if (isConnected) {
-  mqttService.publishMessage = (topic, message) => {
-    console.log("Publishing message:", message);
-    if (mqttService) {
-      mqttService.publish(topic, message, (retain = true));
+  //useEffect(() => {
+  // const mqttService = new MqttService((message) => {
+  // Existing message callback logic
+  const onMessageArrived = useCallback((message) => {
+    // console.log("Settings line 82 Message received: ", message.payloadString);
+    const payload = message.payloadString;
+    switch (message.destinationName) {
+      case "amTemperature":
+        setAmTemperature(payload);
+        //("Settings line 87 amTemperature " + amTemperature);
+        break;
+      case "pmTemperature":
+        setPmTemperature(payload);
+        //console.log("Settings line 91 pmTemperature " + pmTemperature);
+        break;
+      case "AMtime":
+        setAMTime(payload);
+        //console.log("Settings line 95 AMtime " + AMtime);
+        break;
+      case "PMtime":
+        setPMTime(payload);
+        break;
+      case "gaugeHours":
+        setGaugeHours(parseInt(message.payloadString));
+        //console.log("Settings line 102 gaugeHours " + gaugeHours);
+        break;
+      case "gaugeMinutes":
+        setGaugeMinutes(parseInt(message.payloadString));
+        //console.log("Settings line 106 gaugeMinutes " + gaugeMinutes);
+        break;
+      case "HeaterStatus":
+        const newStatus = message.payloadString.trim() === "true";
+        setHeaterStatus(newStatus);
+        //console.log("Settings line 111 HeaterStatus " + newStatus);
+        break;
+      case "targetTemperature":
+        setTargetTemperature(message.payloadString.trim());
+        break;
+      default:
+      //console.log(`Unhandled topic: ${message.destinationName}`);
     }
-  };
-  };
-  /********************************************************************
-   *   Effect hook to establish MQTT connection and handle messages   *
-   *                          start                                   *
-   * ******************************************************************/
+  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      //console.log("SettingsScreen is focused");
 
-  // return () => {
-  //   if (mqttService.client) {
-  //     mqttService.client.disconnect();
-  //   }
-  // };
+      // Initialize the MQTT service
+      const mqtt = new MqttService(onMessageArrived, { setIsConnected });
+      mqtt.connect("Tortoise", "Hea1951Ter", {
+        onSuccess: () => {
+          //console.log("Settings line 125 TemperatureGraph Connected to MQTT broker");
+          setIsConnected(true);
+          mqtt.subscribe("control");
+          mqtt.subscribe("amTemperature");
+          mqtt.subscribe("pmTemperature");
+          mqtt.subscribe("AMtime");
+          //console.log("Settings line 133 AMtime " + AMtime);
+          mqtt.subscribe("PMtime");
+          //console.log("Settings line 135 PMtime " + PMtime);
+          mqtt.subscribe("gaugeHours");
+          mqtt.subscribe("gaugeMinutes");
+          mqtt.subscribe("HeaterStatus");
+          mqtt.subscribe("targetTemperature");
+        },
+        onFailure: (error) => {
+          console.error(
+            "Settings line 143 Failed to connect to MQTT broker ",
+            error
+          );
+          setIsConnected(false);
+        },
+      });
+      setMqttService(mqtt);
+      /********************************************************************
+       *   Effect hook to establish MQTT connection and handle messages   *
+       *                          start                                   *
+       * ******************************************************************/
 
-  // }, []);
+      return () => {
+        console.log("GaugeScreen is unfocused, cleaning up...");
+        // Disconnect MQTT when component unmounts
+        if (mqtt) {
+          console.log("Settings line 156 Disconnecting MQTT");
+          mqtt.disconnect();
+        }
+        setIsConnected(false); // Reset connection state
+      };
+    }, [onMessageArrived])
+  );
 
   function handleReconnect() {
-    console.log("131 qqqqqReconnecting...");
+    //console.log("Settings line 163 handleReconnect...");
     mqttService.reconnectAttempts = 0;
     mqttService.reconnect();
   }
 
   function handlePublishMessage() {
+    //console.log("Settings line 183 isConnected ", isConnected);
     if (isConnected) {
-      mqttService.publishMessage(amTemperature, pmTemperature, AMtime, PMtime);
+      //console.log("settings line 169 targetTemperature " + targetTemperature);
+      mqttService.publishMessage(
+        amTemperature,
+        pmTemperature,
+        AMtime,
+        PMtime,
+        targetTemperature
+      );
+      //console.log("Settings line 176 targetTemperature " + targetTemperature);
     } else {
-      console.error("mqttService is not initialized yet.");
+      console.error("Settings line 179 mqttService is not initialized yet.");
     }
   }
 
-  // function onMessageReceived(message) {
-  //   const payload = message.payloadString;
-  //   switch (message.destinationName) {
-  //     case "amTemperature":
-  //       setAmTemperature(payload);
-  //       break;
-  //     case "pmTemperature":
-  //       setPmTemperature(payload);
-  //       break;
-  //     case "AMtime":
-  //       setAMTime(payload);
-  //       break;
-  //     case "PMtime":
-  //       setPMTime(payload);
-  //       break;
-  //     case "gaugeHours":
-  //       setgaugeHours(parseInt(message.payloadString));
-  //       break;
-  //     case "gaugeMinutes":
-  //       setgaugeMinutes(parseInt(message.payloadString));
-  //       break;
-  //     case "HeaterStatus":
-  //       const newStatus = message.payloadString.trim() === "true";
-  //       setHeaterStatus(newStatus);
-  //       break;
-  //     case "targetTemperature":
-  //       settargetTemperature(message.payloadString.trim());
-  //       break;
-  //     default:
-  //       console.log(`Unhandled topic: ${message.destinationName}`);
-  //   }
-  // }
+  // console.log("Settings line 183 gaugeHours " + gaugeHours);
+  // console.log("Settings line 184 gaugeMinutes " + gaugeMinutes);
+  // console.log("Settings line 185 HeaterStatus " + HeaterStatus);
+  // console.log("Settings line 186 targetTemperature " + targetTemperature);
+  // console.log("Settings line 18t isConnected" + isConnected);
 
-  // client.onMessageArrived = onMessageReceived;
-  // client.connect({ onSuccess: onConnect, onFailure });
-
-  // return () => {
-  //   client.disconnect();
-  // };
-  // }, []);
-
-  /*************************************************************
-   *   Cleanup function to disconnect when component unmounts  *
-   *                            end                            *
-   * ***********************************************************/
-
-  // const reconnect = () => {
-  //   if (!client.isConnected()) {
-  //     console.log("Attempting to reconnect...");
-  //     client.connect({
-  //       onSuccess: () => {
-  //         console.log("Reconnected successfully.");
-  //         setIsConnected(true);
-
-  //         // Clear previous data
-  //         setAmTemperature(null);
-  //         setPmTemperature(null);
-  //         setAMTime("");
-  //         setPMTime("");
-
-  //         // Optionally, subscribe to the topics again
-  //         client.subscribe("control");
-  //         client.subscribe("amTemperature");
-  //         client.subscribe("pmTemperature");
-  //         client.subscribe("AMtime");
-  //         client.subscribe("PMtime");
-  //         client.subscribe("gaugeHours");
-  //         client.subscribe("gaugeMinutes");
-  //         client.subscribe("HeaterStatus");
-  //         client.subscribe("targetTemperature");
-  //       },
-  //       onFailure: (err) => {
-  //         console.log("Failed to reconnect:", err);
-  //         setIsConnected(false);
-  //       },
-  //     });
-  //   } else {
-  //     console.log("Already connected.");
-  //   }
-  // };
-  console.log("isConnected", isConnected);
+  // console.log("Settings line 282 isConnected ", isConnected);
   // console.log("updateConnectionStatus..." + this.updateConnectionStatus);
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <SafeAreaView style={styles.container}>
+        <Text style={styles.heading}>MQTT_Heat_Control</Text>
         <Text style={styles.heading}>Settings</Text>
+        <Text style={styles.timeHeader}>
+          If time is incorrect, check housing
+        </Text>
+        <Text style={styles.timeText}>Hours: Minutes</Text>
+        <Text style={styles.time}>
+          {gaugeHours}:{gaugeMinutes.toString().padStart(2, "0")}
+        </Text>
         <TouchableOpacity style={styles.reset} onPress={handleOnPress}>
           <Text style={styles.header}>
             {Reset ? "Press To Reset" : "PRESS WHEN FINISHED"}
           </Text>
         </TouchableOpacity>
-        <Text style={styles.header}>
+        <Text
+          style={[
+            styles.connectionStatus,
+            { color: isConnected ? "green" : "red" },
+          ]}
+        >
           {isConnected ? "Connected" : "Disconnected"}
         </Text>
-        <Text style={styles.timeHeader}>
-          If time is incorrect, check housing
-        </Text>
-
         <View>
-          {/* <Text style={styles.timeText}>Hours: Minutes</Text> */}
-          <Text style={styles.time}>
-            {/* {gaugeHours}:{gaugeMinutes.toString().padStart(2, "0")} */}
-          </Text>
           <Text
             style={[
               styles.TargetTempText,
               // { color: HeaterStatus ? "red" : "green" },
             ]}
-          >
-            {/* {"Heater Status = " + (HeaterStatus ? "on" : "off")} */}
-          </Text>
-          {/* Button to toggle the reset state */}
+          ></Text>
         </View>
 
         {!Reset && ( // Add this line to conditionally render the TimePicker components START

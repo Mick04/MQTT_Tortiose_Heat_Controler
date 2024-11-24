@@ -5,7 +5,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { SafeAreaView, StyleSheet, Platform, StatusBar } from "react-native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 
-//import SettingsScreen from "./components/Settings.js";
+import SettingsScreen from "./components/Settings.js";
 // import DialsScreen from "./components/Dials.js";
 import GaugeScreen from "./components/Gauges.js";
 import HomeScreen from "./components/HomeScreen.js";
@@ -22,7 +22,7 @@ function App() {
           {/* <Tab.Screen name="Dials" component={DialsScreen} /> */}
           <Tab.Screen name="Gauges" component={GaugeScreen} />
           {/* <Tab.Screen name="Graph" component={GraphScreen} /> */}
-          {/* <Tab.Screen name="Settings" component={SettingsScreen} /> */}
+          <Tab.Screen name="Settings" component={SettingsScreen} />
           {/* <Tab.Screen name="Graph" component={GraphScreen} /> */}
         </Tab.Navigator>
       </NavigationContainer>

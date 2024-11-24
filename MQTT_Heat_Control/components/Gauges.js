@@ -1,5 +1,5 @@
 //Gauges.js
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -7,10 +7,12 @@ import {
   SafeAreaView,
   ScrollView,
 } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import MqttService from "./MqttService";
 import { styles } from "../Styles/styles";
 const GaugeScreen = () => {
-  console.log("TemperatureGraph");
+  console.log("Gauges line 13 TemperatureGraph");
+
   const [mqttService, setMqttService] = useState(null);
   const [outSide, setOutSideTemp] = useState("");
   const [coolSide, setCoolSideTemp] = useState("");
@@ -20,92 +22,96 @@ const GaugeScreen = () => {
   const [HeaterStatus, setHeaterStatus] = useState(false);
   const [targetTemperature, setTargetTemperature] = useState(0);
   const [isConnected, setIsConnected] = useState(false);
-  useEffect(() => {
-    console.log("useEffect");
 
-    const onMessageArrived =
-      (message) => {
-        console.log("Message received:", message.payloadString);
-        switch (message.destinationName) {
-          case "outSide":
-            setOutSideTemp(parseInt(message.payloadString));
-            break;
-          case "coolSide":
-            setCoolSideTemp(parseInt(message.payloadString));
-            break;
-          case "heater":
-            setHeaterTemp(parseInt(message.payloadString));
-            break;
-          case "gaugeHours":
-            setGaugeHours(parseInt(message.payloadString));
-            break;
-          case "gaugeMinutes":
-            setGaugeMinutes(parseInt(message.payloadString));
-            break;
-          case "HeaterStatus":
-            const newStatus = message.payloadString.trim() === "true";
-            setHeaterStatus(newStatus);
-            console.log("HeaterStatus", newStatus); 
-           break;
-          case "targetTemperature":
-            setTargetTemperature(message.payloadString.trim());
-            break;
-          default:
-            console.log("Unknown topic:", message.destinationName);
-        }
-        // Log the updated values
-        console.log("Current values:", {
-          outSide,
-          coolSide,
-          heater,
-        });
-      };
-// Pass the setIsConnected function
-    // Initialize the MQTT service
-    const mqtt = new MqttService(onMessageArrived, setIsConnected);
-console.log("line 55 TemperatureGraph");
-    mqtt.connect("Tortoise", "Hea1951Ter", {
-      onSuccess: () => {
-        console.log("TemperatureGraph Connected to MQTT broker");
-        setIsConnected(true);
-        mqtt.client.subscribe("outSide");
-        mqtt.client.subscribe("coolSide");
-        mqtt.client.subscribe("heater");
-        mqtt.client.subscribe("gaugeHours");
-        mqtt.client.subscribe("gaugeMinutes");
-        mqtt.client.subscribe("HeaterStatus");
-        mqtt.client.subscribe("targetTemperature");
-      },
-      onFailure: (error) => {
-        console.error("Failed to connect to MQTT broker", error);
-        setIsConnected(false);
-      },
-    });
-
-    setMqttService(mqtt);
-
-    return () => {
-      // Disconnect MQTT when component unmounts
-      if (mqttService) {
-        console.log("Disconnecting MQTT");
-        mqttService.disconnect();
-      }
-      setIsConnected(false); // Reset connection state
-    };
+  // Define the onMessageArrived callback
+  const onMessageArrived = useCallback((message) => {
+    //console.log("Gauges line 28 Message received: ", message.payloadString);
+    switch (message.destinationName) {
+      case "outSide":
+        setOutSideTemp(parseInt(message.payloadString));
+        break;
+      case "coolSide":
+        setCoolSideTemp(parseInt(message.payloadString));
+        break;
+      case "heater":
+        setHeaterTemp(parseInt(message.payloadString));
+        break;
+      case "gaugeHours":
+        setGaugeHours(parseInt(message.payloadString));
+        break;
+      case "gaugeMinutes":
+        setGaugeMinutes(parseInt(message.payloadString));
+        break;
+      case "HeaterStatus":
+        const newStatus = message.payloadString.trim() === "true";
+        setHeaterStatus(newStatus);
+        break;
+      case "topicTargetTemperature":
+        setTargetTemperature(parseInt(message.payloadString));
+        console.log(
+          "Gauges line 52 topicTargetTemperature: ",
+          targetTemperature
+        );
+        break;
+      default:
+        console.log("Unknown topic:", message.destinationName);
+    }
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      console.log("GaugeScreen is focused");
+
+      // Initialize the MQTT service
+      const mqtt = new MqttService(onMessageArrived, setIsConnected);
+      console.log("line 55 TemperatureGraph ");
+      mqtt.connect("Tortoise", "Hea1951Ter", {
+        onSuccess: () => {
+          console.log(
+            "Settings line 76 TemperatureGraph Connected to MQTT broker"
+          );
+          setIsConnected(true);
+          mqtt.client.subscribe("outSide");
+          mqtt.client.subscribe("coolSide");
+          mqtt.client.subscribe("heater");
+          mqtt.client.subscribe("gaugeHours");
+          mqtt.client.subscribe("gaugeMinutes");
+          mqtt.client.subscribe("HeaterStatus");
+          mqtt.client.subscribe("topicTargetTemperature");
+        },
+        onFailure: (error) => {
+          console.error("Failed to connect to MQTT broker", error);
+          setIsConnected(false);
+        },
+      });
+
+      setMqttService(mqtt);
+
+      return () => {
+        console.log("GaugeScreen is unfocused, cleaning up...");
+        // Disconnect MQTT when the screen is unfocused
+        if (mqtt) {
+          console.log("Gauges line 97 Disconnecting MQTT");
+          mqtt.disconnect();
+        }
+        setIsConnected(false); // Reset connection state
+      };
+    }, [onMessageArrived])
+  );
+
   function handleReconnect() {
-    console.log("131 qqqqqReconnecting...");
+    console.log("Gauges line 104 Reconnecting...");
     if (mqttService) {
       mqttService.reconnect();
-    mqttService.reconnectAttempts = 0;
+      mqttService.reconnectAttempts = 0;
+    } else {
+      console.log("Gauges line 110 MQTT Service is not initialized");
     }
-    else {
-      console.log("MQTT Service is not initialized");
   }
-}
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <SafeAreaView style={styles.container}>
+        <Text style={styles.heading}>MQTT_Heat_Control</Text>
         <Text style={styles.heading}>Gauges</Text>
         <Text style={styles.timeHeader}>
           If time is incorrect, check housing
