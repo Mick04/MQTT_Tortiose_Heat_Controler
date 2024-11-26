@@ -8,7 +8,7 @@
 #include <NTPClient.h>
 #include <ESP_Mail_Client.h>
 // put your ssid and password here
-const char *ssid = "Gimp";
+const char *ssid = "Gimp_EXT";
 const char *password = "FC7KUNPX";
 
 // put your mqtt server here:
