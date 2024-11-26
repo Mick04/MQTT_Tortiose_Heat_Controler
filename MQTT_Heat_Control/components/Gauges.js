@@ -117,7 +117,7 @@ const GaugeScreen = () => {
           If time is incorrect, check housing
         </Text>
         <View>
-          {/* <Text style={styles.timeText}>Hours: Minutes</Text> */}
+          <Text style={styles.timeText}>Hours: Minutes</Text>
           <Text style={styles.time}>
             {gaugeHours}:{gaugeMinutes.toString().padStart(2, "0")}
           </Text>
