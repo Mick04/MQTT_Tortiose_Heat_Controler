@@ -27,7 +27,7 @@ export const styles = StyleSheet.create({
   time: {
     // justifyContent: "space-between",
     alignItems: "center",
-    left: "20%",
+    left: "7%",
     marginBottom: 10,
     fontSize: 20,
     color: "blue",
@@ -137,5 +137,17 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     fontSize: 20,
     color: "red",
+  },
+  graphContainer: {
+    flexGrow: 1,
+    alignItems: "center",
+    marginTop: 50,
+    paddingTop: 50,
+  },
+  lineGraphContainer: {
+    flexGrow: 1,
+    alignItems: "center",
+    marginTop: 5,
+    paddingTop: 150,
   },
 });

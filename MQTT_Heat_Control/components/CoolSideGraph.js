@@ -10,31 +10,32 @@ import {
 import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import MqttService from "./MqttService";
-import CustomLineChart from './CustomLineChart'; // Import the reusable component
-import { styles } from "./Styles/styles";
+import CustomLineChart from "./CustomLineChart"; // Import the reusable component
+import { styles } from "../Styles/styles";
 
-const HeatGraph = () => {
+const CoolSideGraph = () => {
   const [mqttService, setMqttService] = useState(null);
-  const [heater, setHeaterTemp] = useState("");
+  const [coolSide, setCoolSideTemp] = useState("");
   const [gaugeHours, setGaugeHours] = useState(0);
   const [gaugeMinutes, setGaugeMinutes] = useState(0);
   const [inputValue, setInputValue] = useState("");
   const [isConnected, setIsConnected] = useState(false);
+  const [textColor, setTextColor] = useState('blue'); // Example color state
   const [data, setData] = useState([
     { value: -10, label: "10:00", dataPointText: "-10 c˚" },
   ]);
-  
+
   // Define the onMessageArrived callback
   const onMessageArrived = useCallback(
     (message) => {
-      if (message.destinationName === "heater") {
-        const newTemp = parseFloat(message.payloadString).toFixed(.1);
+      if (message.destinationName === "coolSide") {
+        const newTemp = parseFloat(message.payloadString).toFixed(0.1);
         const lastTemp = data.length > 0 ? data[data.length - 1].value : null;
 
         if (lastTemp === null || Math.abs(newTemp - lastTemp) >= 0.5) {
           const formattedTemp = parseFloat(newTemp); // Convert back to number
-          setHeaterTemp(formattedTemp);
-          console.log("Gauges line 32 heater: ", heater);
+          setCoolSideTemp(formattedTemp);
+          console.log("Gauges line 32 coolSide: ", coolSide);
 
           setData((prevData) => [
             ...prevData,
@@ -56,12 +57,12 @@ const HeatGraph = () => {
         setGaugeMinutes(parseInt(message.payloadString));
       }
     },
-    [data,heater]
+    [data, coolSide]
   );
 
   useFocusEffect(
     useCallback(() => {
-      console.log("GaugeScreen is focused");
+      console.log("CoolSideScreen is focused");
 
       // Initialize the MQTT service
       const mqtt = new MqttService(onMessageArrived, setIsConnected);
@@ -73,7 +74,7 @@ const HeatGraph = () => {
           );
           setIsConnected(true);
 
-          mqtt.client.subscribe("heater");
+          mqtt.client.subscribe("coolSide");
           mqtt.client.subscribe("gaugeHours");
           mqtt.client.subscribe("gaugeMinutes");
         },
@@ -155,28 +156,25 @@ const HeatGraph = () => {
     setInputValue("");
   };
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.graphContainer}>
       <View>
-        <Text style={styles.header}> Heater Temperature</Text>
-       
+        <Text style={styles.header}>CoolSide Temperature</Text>
         <Text style={styles.timeText}>Hours: Minutes</Text>
-        <Text style={styles.time}> 
-            {gaugeHours}:{gaugeMinutes.toString().padStart(2, "0")}
-            </Text>
+        <Text style={styles.time}>
+          {gaugeHours}:{gaugeMinutes.toString().padStart(2, "0")}
+        </Text>
       </View>
-      <View style={styles.connectionStatus}>
-          <Text
-            style={[
-              styles.connectionStatus,
-              { color: isConnected ? "green" : "red" },
-            ]}
-          >
-            {isConnected
-              ? "Connected to MQTT Broker"
-              : "Disconnected from MQTT Broker"}
-          </Text>
-        </View>
-        <CustomLineChart data={data} /> {/* Use the reusable component */}
+      <Text
+        style={[
+          styles.connectionStatus,
+          { color: isConnected ? "green" : "red" },
+        ]}
+      >
+        {isConnected
+          ? "Connected to MQTT Broker"
+          : "Disconnected from MQTT Broker"}
+      </Text>
+      <CustomLineChart data={data} GraphTextcolor={'green'} />
       <TouchableOpacity
         style={styles.reconnectButton}
         onPress={handleReconnect}
@@ -187,4 +185,4 @@ const HeatGraph = () => {
     </SafeAreaView>
   );
 };
-export default HeatGraph;
+export default CoolSideGraph;

@@ -6,9 +6,12 @@ import { SafeAreaView, StyleSheet, Platform, StatusBar } from "react-native";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 
 import SettingsScreen from "./components/Settings.js";
-// import DialsScreen from "./components/Dials.js";
 import GaugeScreen from "./components/Gauges.js";
 import HomeScreen from "./components/HomeScreen.js";
+import CoolSideGraph from "./components/CoolSideGraph.js";
+import OutSideGraph from "./components/OutSideGraph.js";
+import HeatGraph from "./components/HeaterGraph.js";
+
 // import { useMQTT } from "./components/MQTTService";
 
 const Tab = createMaterialTopTabNavigator();
@@ -17,30 +20,29 @@ function App() {
   return (
     <SafeAreaView style={styles.AndroidSafeArea}>
       <NavigationContainer>
-        <Tab.Navigator initialRouteName="Home">
+        <Tab.Navigator
+          initialRouteName="Home"
+          tabBarOptions={{
+            activeTintColor: "red", // Change this to your desired active tab text color
+            inactiveTintColor: "blue", // Change this to your desired inactive tab text color
+            labelStyle: { fontSize: 16 }, // Customize the label style
+            indicatorStyle: { backgroundColor: 'red' }, // Customize the tab bar underline
+            style: { backgroundColor: "white" }, // Customize the tab bar background color
+          }}
+        >
           <Tab.Screen name="Home" component={HomeScreen} />
-          {/* <Tab.Screen name="Dials" component={DialsScreen} /> */}
           <Tab.Screen name="Gauges" component={GaugeScreen} />
-          {/* <Tab.Screen name="Graph" component={GraphScreen} /> */}
           <Tab.Screen name="Settings" component={SettingsScreen} />
-          {/* <Tab.Screen name="Graph" component={GraphScreen} /> */}
+          <Tab.Screen name="coolSide" component={CoolSideGraph} />
+          <Tab.Screen name="outSide" component={OutSideGraph} />
+          <Tab.Screen name="heatGraph" component={HeatGraph} />
         </Tab.Navigator>
       </NavigationContainer>
     </SafeAreaView>
   );
 }
-// export default function App() {
-//   return (
-//     <TemperatureDataProvider>
-//       <AppContent />
-//     </TemperatureDataProvider>
-//   );
-// }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
   AndroidSafeArea: {
     flex: 1,
     backgroundColor: "white",

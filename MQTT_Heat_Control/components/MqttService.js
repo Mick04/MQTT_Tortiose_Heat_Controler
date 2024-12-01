@@ -3,7 +3,7 @@ import Paho from "paho-mqtt";
 class MqttService {
   client = null;
 
-  constructor(onMessageArrived, setIsConnected) {
+  constructor(onMessageArrived, onStateChangeCallbacks) {
     console.log("MqttService constructor");
     // Initialize the client and pass in the callback for when a message is received
     this.client = new Paho.Client(
@@ -14,7 +14,7 @@ class MqttService {
     this.client.onConnectionLost = this.onConnectionLost.bind(this);
     this.client.onMessageArrived = onMessageArrived;
     this.client.onConnectionLost = (responseObject) => {
-      console.error("MQTTServices line 17 Connection lost: ", responseObject.errorMessage);
+      //console.error("MQTTServices line 17 Connection lost: ", responseObject.errorMessage);
       if (this.setIsConnected) this.setIsConnected(false);
     };
   }

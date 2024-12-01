@@ -8,7 +8,8 @@
 #include <NTPClient.h>
 #include <ESP_Mail_Client.h>
 // put your ssid and password here
-const char *ssid = "Gimp_EXT";
+const char *ssid = "Gimp";
+//const char *ssid = "Gimp_EXT";
 const char *password = "FC7KUNPX";
 
 // put your mqtt server here:
@@ -36,8 +37,8 @@ float celsius, s1, s2, s3, stores1, stores2, stores3, prevS1 = -1, prevS2 = -1, 
 
 int adr;
 uint_fast8_t amTemperature, pmTemperature, amTemp, pmTemp; // is set by the sliders
-uint_fast8_t AMtime, PMtime, Day, Hours, Minutes, seconds, amHours, amMinutes, pmHours, pmMinutes, prevHours = -1, prevMinutes = -1;
-bool Am, AmFlag, heaterStatus = false, StartUp = 1, heaterOn = false, prevHeaterStatus = false;
+uint_fast8_t AMtime, PMtime, Day, Hours, Minutes, seconds, amHours, amMinutes, pmHours, pmMinutes, prevHours = -true, prevMinutes = -1;
+bool Am, AmFlag, heaterStatus = false, StartUp = true, heaterOn = false, prevHeaterStatus = false;
 // Timer-related variables
 unsigned long heaterOnTime = 0;
 const unsigned long heaterTimeout = 3600000;
@@ -47,13 +48,31 @@ char prevTargetTemperature[23], targetTemperature[23];
 /********************************************
       settup the time variables start
  * ******************************************/
-const long utcOffsetInSeconds = 3600;
 
 char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 char sensor[50];
 // Define NTP Client to get time
 WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "pool.ntp.org", utcOffsetInSeconds);
+NTPClient timeClient(ntpUDP, "pool.ntp.org", 0, 60000);
+// Time zone and DST offsets
+const long utcOffsetInSeconds = 0;    // Standard time offset (e.g., UTC+0)
+const long dstOffsetInSeconds = 3600; // Daylight saving time offset (e.g., +1 hour)
+
+// Function to check if DST is in effect
+bool isDST(int day, int month, int hour, int weekday)
+{
+  // Example logic for DST in Europe (last Sunday in March to last Sunday in October)
+  if (month < 3 || month > 10)
+    return false; // No DST in Jan, Feb, Nov, Dec
+  if (month > 3 && month < 10)
+    return true;                  // DST in Apr, May, Jun, Jul, Aug, Sep
+  int lastSunday = day - weekday; // Calculate the last Sunday of the month
+  if (month == 3)
+    return (lastSunday >= 25 && (hour >= 2)); // DST starts at 2 AM on the last Sunday in March
+  if (month == 10)
+    return (lastSunday < 25 || (lastSunday == 25 && hour < 2)); // DST ends at 2 AM on the last Sunday in October
+  return false;
+}
 /********************************************
       settup the time variables end
  * ******************************************/
@@ -112,9 +131,9 @@ IPAddress secondaryDNS(8, 8, 4, 4); // optional
 
 void setup()
 {
-    pinMode(Relay_Pin, OUTPUT);
-  pinMode(LED_Pin, OUTPUT);      // digitalWrite (LED_Pin, LOW);//LED_Pin off
-  pinMode(LED_BUILTIN, OUTPUT);  // Initialize the LED_BUILTIN pin as an output
+  pinMode(Relay_Pin, OUTPUT);
+  pinMode(LED_Pin, OUTPUT);     // digitalWrite (LED_Pin, LOW);//LED_Pin off
+  pinMode(LED_BUILTIN, OUTPUT); // Initialize the LED_BUILTIN pin as an output
   Serial.begin(115200);
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED)
@@ -125,6 +144,8 @@ void setup()
 
   Serial.println("WiFi connected");
 
+  timeClient.begin();
+  timeClient.setTimeOffset(utcOffsetInSeconds);
   espClient.setInsecure(); // For basic TLS without certificate verification
   client.setServer(mqtt_server, mqtt_port);
   client.setCallback(callback);
@@ -197,20 +218,44 @@ void loop()
   publishTempToMQTT();
   relay_Control();
   timeClient.update();
-  Day = timeClient.getDay();
-  Hours = timeClient.getHours();
-  Minutes = timeClient.getMinutes();
-  seconds = timeClient.getSeconds();
+  // Day = timeClient.getDay();
+  // Hours = timeClient.getHours();
+
+  unsigned long epochTime = timeClient.getEpochTime();
+  // Convert epoch time to struct tm
+  time_t rawTime = epochTime;
+  struct tm *timeInfo = localtime(&rawTime);
+
+  // Extract time components
+  int currentDay = timeInfo->tm_mday;
+  int currentMonth = timeInfo->tm_mon + 1; // tm_mon is 0-based
+  int currentHour = timeInfo->tm_hour;
+  int currentWeekday = timeInfo->tm_wday; // tm_wday is 0-based (Sunday)
+
+  // Adjust for DST
+  if (isDST(currentDay, currentMonth, currentHour, currentWeekday))
+  {
+    epochTime += dstOffsetInSeconds;
+    rawTime = epochTime;
+    timeInfo = localtime(&rawTime);
+  }
+  Hours = (timeInfo->tm_hour);
+  Minutes = (timeInfo->tm_min);
+  seconds = (timeInfo->tm_sec);
   Am = true;
   Am = (Hours < 12);
- //if StartUp == 1 and Am true then targetTemperature must ==  amTemperature else  targetTemperature must == pmTemperature
-  if (StartUp == 1 && Am == true)
+  // if StartUp == 1 and Am true then targetTemperature must ==  amTemperature else  targetTemperature must == pmTemperature
+  if (StartUp && Am == true)
   {
     sprintf(targetTemperature, "%d", amTemperature);
+    Serial.println("StartUp == true and Am == true");
+    StartUp = false;
   }
-  else
+  else if (StartUp && Am == false)
   {
     sprintf(targetTemperature, "%d", pmTemperature);
+    Serial.println("StartUp == true and Am == false");
+    StartUp = false;
   }
   if (heaterOn)
   {
@@ -221,33 +266,30 @@ void loop()
 // put function definitions here:
 // void callback(char *topic, byte *payload, unsigned int length){
 void callback(char *topic, uint8_t *payload, unsigned int length)
-{Serial.println("Callback invoked");
-    Serial.print("Topic: ");
-    Serial.println(topic);
-
-    if (payload == nullptr) {
-        Serial.println("Payload is null");
-        return;
-    }
-    Serial.print("Payload: ");
-    for (unsigned int i = 0; i < length; i++) {
-        Serial.print((char)payload[i]);
-    }
-    Serial.println();
-    if (topic == nullptr || payload == nullptr)
+{
+ 
+  if (payload == nullptr)
+  {
+    Serial.println("Payload is null");
+    return;
+  }
+  // Serial.print("Payload: ");
+  for (unsigned int i = 0; i < length; i++)
+  {
+    // Serial.print((char)payload[i]);
+  }
+  //Serial.println();
+  if (topic == nullptr || payload == nullptr)
   {
     Serial.println("Error: Null topic or payload");
     return;
   }
 
-  Serial.print("line 196 Message arrived [");
-  Serial.println(topic);
-  Serial.print("] ");
   for (unsigned int i = 0; i < length; i++)
   {
-    Serial.print((char)payload[i]);
+    // Serial.print((char)payload[i]);
   }
-  Serial.println();
+  //Serial.println();
 
   // Null-terminate the payload to treat it as a string
   payload[length] = '\0';
@@ -255,17 +297,19 @@ void callback(char *topic, uint8_t *payload, unsigned int length)
   if (strstr(topic, "amTemperature"))
   {
     sscanf((char *)payload, "%d", &amTemperature);
-    if (StartUp == 1)
+    if (StartUp == true)
     {
       amTemp = amTemperature;
+      Serial.println("line 392 amTemp: " + String(amTemp));
     }
   }
   if (strstr(topic, "pmTemperature"))
   {
     sscanf((char *)payload, "%d", &pmTemperature);
-    if (StartUp == 1)
+    if (StartUp == true)
     {
       pmTemp = pmTemperature;
+      StartUp = false;
     }
   }
   if (strstr(topic, "AMtime"))
@@ -283,16 +327,14 @@ void callback(char *topic, uint8_t *payload, unsigned int length)
 }
 int reconnect(int index)
 {
-  //Serial.println("reconnect index: " + String(index));
+  // Serial.println("reconnect index: " + String(index));
   while (!client.connected())
   {
-    //Serial.print("line 243 Attempting MQTT connection...");
-    // Set a longer keep-alive interval (e.g., 60 seconds)
+    
+    //  Set a longer keep-alive interval (e.g., 60 seconds)
     client.setKeepAlive(60);
     if (client.connect("WemosD1Client", mqtt_user, mqtt_password))
     {
-      // Serial.println("line connected");
-      Serial.println("line 245 connected");
       client.subscribe("Temp_Control/sub");
       client.subscribe("control");
       client.subscribe("amTemperature");
@@ -300,7 +342,6 @@ int reconnect(int index)
       client.subscribe("AMtime");
       client.subscribe("PMtime");
       client.subscribe("HeaterStatus");
-
       client.subscribe("outSide");
       client.subscribe("coolSide");
       client.subscribe("heater");
@@ -327,7 +368,6 @@ void relay_Control()
   int targetTemp = AmFlag ? amTemp : pmTemp;
   if (s3 < targetTemp)
   {
-    Serial.println("line 276 s3 < targetTemp");
     digitalWrite(Relay_Pin, HIGH);
     digitalWrite(LED_Pin, HIGH);    // LED_Pin on
     digitalWrite(LED_BUILTIN, LOW); // LED_Pin on
@@ -339,7 +379,6 @@ void relay_Control()
   }
   else if (s3 > targetTemp)
   {
-    Serial.println("line 288 s3 > targetTemp");
     digitalWrite(Relay_Pin, LOW);
     digitalWrite(LED_Pin, LOW);      // LED_Pin off
     digitalWrite(LED_BUILTIN, HIGH); // LED_Pin off
@@ -363,9 +402,7 @@ void publishTempToMQTT(void)
 {
   if (!client.connected())
   {
-    // Serial.println("line 312 void publishTempToMQTT...");
-    //  Reconnect to MQTT broker if necessary
-
+ 
     // Attempt to reconnect and check the return value
     if (reconnect(3) == 1)
     {
@@ -383,7 +420,6 @@ void publishTempToMQTT(void)
   {
     snprintf(sensVal, sizeof(sensVal), "%.2f", s1);
     client.publish("outSide", sensVal, true);
-    // Serial.println("outSide" + String(sensVal));
     prevS1 = s1;
   }
 
@@ -392,17 +428,13 @@ void publishTempToMQTT(void)
   {
     snprintf(sensVal, sizeof(sensVal), "%.2f", s2);
     client.publish("coolSide", sensVal, true);
-    // Serial.println("coolSide" + String(sensVal));
     prevS2 = s2;
   }
   // publish s3
-  // Serial.println("***line 342 s3 *** " + String(s3));
-  // Serial.println("***line 343 prevS3 *** " + String(prevS3));
   if (fabs(s3 - prevS3) > threshold)
   {
     snprintf(sensVal, sizeof(sensVal), "%.2f", s3);
     client.publish("heater", sensVal, true);
-    // Serial.println("heater" + String(sensVal));
     prevS3 = s3;
   }
 
@@ -411,7 +443,6 @@ void publishTempToMQTT(void)
   {
     snprintf(sensVal, sizeof(sensVal), "%d", Hours);
     client.publish("gaugeHours", sensVal, true);
-    // Serial.print("gaugeHours" + String(sensVal));
     prevHours = Hours;
   }
 
@@ -420,7 +451,6 @@ void publishTempToMQTT(void)
   {
     snprintf(sensVal, sizeof(sensVal), "%d", Minutes);
     client.publish("gaugeMinutes", sensVal, true);
-    // Serial.println("gaugeMinutes" + String(sensVal));
     prevMinutes = Minutes;
   }
 
@@ -429,22 +459,15 @@ void publishTempToMQTT(void)
   {
     const char *heaterStatusStr = heaterStatus ? "true" : "false";
     client.publish("HeaterStatus", heaterStatusStr, true);
-    // Serial.println("HeaterStatus" + String(heaterStatusStr));
     prevHeaterStatus = heaterStatus;
   }
 
-  // Serial.println("HeaterStatus" + String(heaterStatusStr));
-  // Ensure targetTemperature is defined and properly formatted
-
-  // publish targetTemperature
-  // Serial.println("line 382 targetTemperature " + String(targetTemperature));
-  // Serial.println("line 383 prevTargetTemperature " + String(prevTargetTemperature));
   char targetTemperatureStr[23];
   if (strcmp(targetTemperature, prevTargetTemperature) != 0)
   {
+    Serial.println("line 464 Publishing target temperature");
     snprintf(targetTemperatureStr, sizeof(targetTemperatureStr), "%s", targetTemperature);
     client.publish("topicTargetTemperature", targetTemperatureStr, true);
-    // Serial.println("@@@@topicTargetTemperature@@@@@ " + String(targetTemperatureStr));
     strcpy(prevTargetTemperature, targetTemperature); // Copy the new value to prevTargetTemperature
   }
 }
@@ -547,7 +570,6 @@ void sendSensor()
     // test rig board out side dial
     // change celsius to fahrenheit if you prefer output in Fahrenheit;
     s1 = (celsius); // Black outside
-    // Serial.println("line 425 outSide " + String(s1));
   }
 
   if (adr == 96)
@@ -556,7 +578,6 @@ void sendSensor()
     // if (adr == 197) {  //tortoise encloseure
     //  change celsius to fahrenheit if you prefer output in Fahrenheit;
     s2 = (celsius); // GREEN coolSide (adr == 59)
-    // Serial.println("line 432 coolSide " + String(s2));
     delay(1000);
   }
   if (adr == 230)
@@ -566,30 +587,27 @@ void sendSensor()
     // if (adr == 228) {  //tortoise encloseure
     //  change celsius to fahrenheit if you prefer output in Fahrenheit;
     s3 = (celsius); // Heater RED heater
-     Serial.println("line 439 heater " + String(s3));
   }
   if (Am)
   {
     if (amHours == Hours && amMinutes == Minutes)
     { // set amTemp for the Night time setting
+    Serial.println("line 591 Am == true");
       AmFlag = true;
       amTemp = amTemperature;
       // int myTemp = amTemp;
       snprintf(targetTemperature, sizeof(targetTemperature), "%d", amTemp);
-      // client.publish("targetTemperature", sensVal, true);
-      // Serial.println("***line 563*** targetTemperature " + String(targetTemperature));
     }
   }
   else
   {
     if (pmHours == Hours && pmMinutes == Minutes)
     { // set pmTemp for the Night time setting
+Serial.println("line 602 Am == false");
       AmFlag = false;
       pmTemp = pmTemperature;
       int myTemp = pmTemp;
       snprintf(targetTemperature, sizeof(targetTemperature), "%d", pmTemp);
-      Serial.println("***line 574*** targetTemperature " + String(targetTemperature));
-      // client.publish("targetTemperature", sensVal, true);
     }
   }
 }
