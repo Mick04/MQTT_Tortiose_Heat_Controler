@@ -46,10 +46,10 @@ const GaugeScreen = () => {
         const newStatus = message.payloadString.trim() === "true";
         setHeaterStatus(newStatus);
         break;
-      case "topicTargetTemperature":
+      case "TargetTemperature":
         setTargetTemperature(parseInt(message.payloadString));
         console.log(
-          "Gauges line 52 topicTargetTemperature: ",
+          "Gauges line 52 TargetTemperature: ",
           targetTemperature
         );
         break;
@@ -77,7 +77,7 @@ const GaugeScreen = () => {
           mqtt.client.subscribe("gaugeHours");
           mqtt.client.subscribe("gaugeMinutes");
           mqtt.client.subscribe("HeaterStatus");
-          mqtt.client.subscribe("topicTargetTemperature");
+          mqtt.client.subscribe("TargetTemperature");
         },
         onFailure: (error) => {
           console.error("Failed to connect to MQTT broker", error);

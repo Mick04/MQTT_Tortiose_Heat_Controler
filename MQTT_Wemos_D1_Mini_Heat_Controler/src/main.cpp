@@ -467,7 +467,7 @@ void publishTempToMQTT(void)
   {
     Serial.println("line 464 Publishing target temperature");
     snprintf(targetTemperatureStr, sizeof(targetTemperatureStr), "%s", targetTemperature);
-    client.publish("topicTargetTemperature", targetTemperatureStr, true);
+    client.publish("TargetTemperature", targetTemperatureStr, true);
     strcpy(prevTargetTemperature, targetTemperature); // Copy the new value to prevTargetTemperature
   }
 }
