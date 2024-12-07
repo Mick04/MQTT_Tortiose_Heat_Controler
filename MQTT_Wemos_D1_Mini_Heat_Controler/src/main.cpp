@@ -8,8 +8,8 @@
 #include <NTPClient.h>
 #include <ESP_Mail_Client.h>
 // put your ssid and password here
-const char *ssid = "Gimp";
-//const char *ssid = "Gimp_EXT";
+//const char *ssid = "Gimp";
+const char *ssid = "Gimp_EXT";
 const char *password = "FC7KUNPX";
 
 // put your mqtt server here:
@@ -38,7 +38,7 @@ float celsius, s1, s2, s3, stores1, stores2, stores3, prevS1 = -1, prevS2 = -1, 
 int adr;
 uint_fast8_t amTemperature, pmTemperature, amTemp, pmTemp; // is set by the sliders
 uint_fast8_t AMtime, PMtime, Day, Hours, Minutes, seconds, amHours, amMinutes, pmHours, pmMinutes, prevHours = -true, prevMinutes = -1;
-bool Am, AmFlag, heaterStatus = false, StartUp = true, heaterOn = false, prevHeaterStatus = false;
+bool Am, AmFlag, heaterStatus = false, publishStartUp = true, StartUp = true, heaterOn = false, prevHeaterStatus = false;
 // Timer-related variables
 unsigned long heaterOnTime = 0;
 const unsigned long heaterTimeout = 3600000;
@@ -562,9 +562,10 @@ void sendSensor()
   ************************************************************/
 
   celsius = (float)raw / 16.0;
-  if (adr == 92)
-  { // tortoise encloseure
-    // if (adr == 181) {  //tortoise encloseure
+  // if (adr == 92)
+  // { 
+    // tortoise encloseure
+     if (adr == 181) {  //tortoise encloseure
     //  if(adr == 89)  {        //outside board out side dial
     // if (adr == 49) {
     // test rig board out side dial
@@ -572,19 +573,19 @@ void sendSensor()
     s1 = (celsius); // Black outside
   }
 
-  if (adr == 96)
-  {
+  // if (adr == 96)
+  // {
     // if (adr == 59) {
-    // if (adr == 197) {  //tortoise encloseure
+   if (adr == 197) {  //tortoise encloseure
     //  change celsius to fahrenheit if you prefer output in Fahrenheit;
     s2 = (celsius); // GREEN coolSide (adr == 59)
     delay(1000);
   }
-  if (adr == 230)
-  { // inside board inSide dial
+  // if (adr == 230)
+  // { // inside board inSide dial
     // if (adr == 92) {   //inside board inSide dial
     //  if(adr == 116)  {    // outside board inSide dial
-    // if (adr == 228) {  //tortoise encloseure
+     if (adr == 228) {  //tortoise encloseure
     //  change celsius to fahrenheit if you prefer output in Fahrenheit;
     s3 = (celsius); // Heater RED heater
   }

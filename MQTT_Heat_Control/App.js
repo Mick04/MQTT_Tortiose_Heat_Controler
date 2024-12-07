@@ -11,6 +11,7 @@ import HomeScreen from "./components/HomeScreen.js";
 import CoolSideGraph from "./components/CoolSideGraph.js";
 import OutSideGraph from "./components/OutSideGraph.js";
 import HeatGraph from "./components/HeaterGraph.js";
+import Heater_ON_OFF_Graph from "./components/Heater_ON_OFF.js";
 
 // import { useMQTT } from "./components/MQTTService";
 
@@ -25,7 +26,7 @@ function App() {
           tabBarOptions={{
             activeTintColor: "red", // Change this to your desired active tab text color
             inactiveTintColor: "blue", // Change this to your desired inactive tab text color
-            labelStyle: { fontSize: 16 }, // Customize the label style
+            labelStyle: { fontSize: 14 }, // Customize the label style
             indicatorStyle: { backgroundColor: 'red' }, // Customize the tab bar underline
             style: { backgroundColor: "white" }, // Customize the tab bar background color
           }}
@@ -36,6 +37,7 @@ function App() {
           <Tab.Screen name="coolSide" component={CoolSideGraph} />
           <Tab.Screen name="outSide" component={OutSideGraph} />
           <Tab.Screen name="heatGraph" component={HeatGraph} />
+          <Tab.Screen name="HeaterStatus" component={Heater_ON_OFF_Graph} />
         </Tab.Navigator>
       </NavigationContainer>
     </SafeAreaView>

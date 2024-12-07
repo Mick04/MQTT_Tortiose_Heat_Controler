@@ -20,23 +20,20 @@ const HeatGraph = () => {
   const [gaugeMinutes, setGaugeMinutes] = useState(0);
   const [inputValue, setInputValue] = useState("");
   const [isConnected, setIsConnected] = useState(false);
-  const [textColor, setTextColor] = useState('blue'); // Example color state
   const [data, setData] = useState([
     { value: -10, label: "10:00", dataPointText: "-10 c˚" },
   ]);
-const color = "red"
+
   // Define the onMessageArrived callback
   const onMessageArrived = useCallback(
     (message) => {
       if (message.destinationName === "heater") {
-        const newTemp = parseFloat(message.payloadString).toFixed(0.1);
+        const newTemp = parseFloat(message.payloadString).toFixed(1);
         const lastTemp = data.length > 0 ? data[data.length - 1].value : null;
 
-        if (lastTemp === null || Math.abs(newTemp - lastTemp) >= 0.5) {
+        if (lastTemp === null || Math.abs(newTemp - lastTemp) >= 0.01) {
           const formattedTemp = parseFloat(newTemp); // Convert back to number
           setHeaterTemp(formattedTemp);
-          console.log("Gauges line 32 heater: ", heater);
-
           setData((prevData) => [
             ...prevData,
             {
@@ -62,18 +59,12 @@ const color = "red"
 
   useFocusEffect(
     useCallback(() => {
-      console.log("GaugeScreen is focused");
 
       // Initialize the MQTT service
       const mqtt = new MqttService(onMessageArrived, setIsConnected);
-      console.log("line 55 TemperatureGraph ");
       mqtt.connect("Tortoise", "Hea1951Ter", {
         onSuccess: () => {
-          console.log(
-            "Settings line 76 TemperatureGraph Connected to MQTT broker"
-          );
           setIsConnected(true);
-
           mqtt.client.subscribe("heater");
           mqtt.client.subscribe("gaugeHours");
           mqtt.client.subscribe("gaugeMinutes");
@@ -87,10 +78,8 @@ const color = "red"
       setMqttService(mqtt);
 
       return () => {
-        console.log("GaugeScreen is unfocused, cleaning up...");
         // Disconnect MQTT when the screen is unfocused
         if (mqtt) {
-          console.log("Gauges line 97 Disconnecting MQTT");
           mqtt.disconnect();
         }
         setIsConnected(false); // Reset connection state
@@ -99,12 +88,12 @@ const color = "red"
   );
 
   function handleReconnect() {
-    console.log("Gauges line 104 Reconnecting...");
     if (mqttService) {
       mqttService.reconnect();
       mqttService.reconnectAttempts = 0;
     } else {
-      console.log("Gauges line 110 MQTT Service is not initialized");
+      console.error("MQTT Service is not initialized");
+      
     }
   }
 
@@ -135,26 +124,6 @@ const color = "red"
     saveData();
   }, [data]);
 
-  const addDataPoint = () => {
-    const newValue = parseFloat(inputValue);
-    if (isNaN(newValue)) {
-      Alert.alert("Invalid input", "Please enter a valid number", [
-        { text: "OK" },
-      ]);
-      return;
-    }
-    const newLabel = new Date().toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-    const newDataPoint = {
-      value: newValue,
-      label: newLabel,
-      dataPointText: `${newValue} c˚`,
-    };
-    setData([...data, newDataPoint]);
-    setInputValue("");
-  };
   return (
     <SafeAreaView style={styles.graphContainer}>
       <View>
@@ -177,7 +146,7 @@ const color = "red"
             : "Disconnected from MQTT Broker"}
         </Text>
       </View>
-      <CustomLineChart data={data} GraphTextcolor={'red'} />
+      <CustomLineChart data={data} GraphTextcolor={"red"} />
       <TouchableOpacity
         style={styles.reconnectButton}
         onPress={handleReconnect}

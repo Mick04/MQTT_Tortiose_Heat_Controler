@@ -29,10 +29,10 @@ const OutSideGraph = () => {
   const onMessageArrived = useCallback(
     (message) => {
       if (message.destinationName === "outSide") {
-        const newTemp = parseFloat(message.payloadString).toFixed(0.1);
+        const newTemp = parseFloat(message.payloadString).toFixed(1);
         const lastTemp = data.length > 0 ? data[data.length - 1].value : null;
 
-        if (lastTemp === null || Math.abs(newTemp - lastTemp) >= 0.5) {
+        if (lastTemp === null || Math.abs(newTemp - lastTemp) >= 0.01) {
           const formattedTemp = parseFloat(newTemp); // Convert back to number
           setHeaterTemp(formattedTemp);
           console.log("Gauges line 32 outSide: ", outSide);
