@@ -16,19 +16,6 @@ import { styles } from "../Styles/styles";
 
 import MqttService from "./MqttService";
 
-// /************************************
-//  *    Creating a new MQTT client    *
-//  *              start               *
-//  * **********************************/
-
-// const mqttService = new MqttService((message) => {
-//   mqttService.onMessageReceived(message);
-// });
-
-// /************************************
-//  *    Creating a new MQTT client    *
-//  *                end               *
-//  * **********************************/
 const SettingsScreen = () => {
   const [Reset, setReset] = useState(true);
   const [amTemperature, setAmTemperature] = useState(" ");
@@ -37,9 +24,6 @@ const SettingsScreen = () => {
   const [isPMDatePickerVisible, setPMDatePickerVisibility] = useState(false);
   const [AMtime, setAMTime] = useState("");
   const [PMtime, setPMTime] = useState("");
-  // const [outSide, setOutSideTemp] = useState("");
-  // const [coolSide, setCoolSideTemp] = useState("");
-  // const [heater, setHeaterTemp] = useState("");
   const [gaugeHours, setGaugeHours] = useState(0);
   const [gaugeMinutes, setGaugeMinutes] = useState(0);
   const [HeaterStatus, setHeaterStatus] = useState(false);
@@ -70,65 +54,50 @@ const SettingsScreen = () => {
     }
   };
 
-  //useEffect(() => {
-  // const mqttService = new MqttService((message) => {
   // Existing message callback logic
   const onMessageArrived = useCallback((message) => {
-    // console.log("Settings line 82 Message received: ", message.payloadString);
     const payload = message.payloadString;
     switch (message.destinationName) {
       case "amTemperature":
         setAmTemperature(payload);
-        //("Settings line 87 amTemperature " + amTemperature);
         break;
       case "pmTemperature":
         setPmTemperature(payload);
-        //console.log("Settings line 91 pmTemperature " + pmTemperature);
         break;
       case "AMtime":
         setAMTime(payload);
-        //console.log("Settings line 95 AMtime " + AMtime);
         break;
       case "PMtime":
         setPMTime(payload);
         break;
       case "gaugeHours":
         setGaugeHours(parseInt(message.payloadString));
-        //console.log("Settings line 102 gaugeHours " + gaugeHours);
         break;
       case "gaugeMinutes":
         setGaugeMinutes(parseInt(message.payloadString));
-        //console.log("Settings line 106 gaugeMinutes " + gaugeMinutes);
         break;
       case "HeaterStatus":
         const newStatus = message.payloadString.trim() === "true";
         setHeaterStatus(newStatus);
-        //console.log("Settings line 111 HeaterStatus " + newStatus);
         break;
       case "targetTemperature":
         setTargetTemperature(message.payloadString.trim());
         break;
       default:
-      //console.log(`Unhandled topic: ${message.destinationName}`);
     }
   }, []);
   useFocusEffect(
     useCallback(() => {
-      //console.log("SettingsScreen is focused");
-
       // Initialize the MQTT service
       const mqtt = new MqttService(onMessageArrived, { setIsConnected });
       mqtt.connect("Tortoise", "Hea1951Ter", {
         onSuccess: () => {
-          //console.log("Settings line 125 TemperatureGraph Connected to MQTT broker");
           setIsConnected(true);
           mqtt.subscribe("control");
           mqtt.subscribe("amTemperature");
           mqtt.subscribe("pmTemperature");
           mqtt.subscribe("AMtime");
-          //console.log("Settings line 133 AMtime " + AMtime);
           mqtt.subscribe("PMtime");
-          //console.log("Settings line 135 PMtime " + PMtime);
           mqtt.subscribe("gaugeHours");
           mqtt.subscribe("gaugeMinutes");
           mqtt.subscribe("HeaterStatus");
@@ -161,15 +130,12 @@ const SettingsScreen = () => {
   );
 
   function handleReconnect() {
-    //console.log("Settings line 163 handleReconnect...");
     mqttService.reconnectAttempts = 0;
     mqttService.reconnect();
   }
 
   function handlePublishMessage() {
-    //console.log("Settings line 183 isConnected ", isConnected);
     if (isConnected) {
-      //console.log("settings line 169 targetTemperature " + targetTemperature);
       mqttService.publishMessage(
         amTemperature,
         pmTemperature,
@@ -177,20 +143,11 @@ const SettingsScreen = () => {
         PMtime,
         targetTemperature
       );
-      //console.log("Settings line 176 targetTemperature " + targetTemperature);
     } else {
       console.error("Settings line 179 mqttService is not initialized yet.");
     }
   }
 
-  // console.log("Settings line 183 gaugeHours " + gaugeHours);
-  // console.log("Settings line 184 gaugeMinutes " + gaugeMinutes);
-  // console.log("Settings line 185 HeaterStatus " + HeaterStatus);
-  // console.log("Settings line 186 targetTemperature " + targetTemperature);
-  // console.log("Settings line 18t isConnected" + isConnected);
-
-  // console.log("Settings line 282 isConnected ", isConnected);
-  // console.log("updateConnectionStatus..." + this.updateConnectionStatus);
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <SafeAreaView style={styles.container}>
@@ -222,7 +179,6 @@ const SettingsScreen = () => {
           <Text
             style={[
               styles.TargetTempText,
-              // { color: HeaterStatus ? "red" : "green" },
             ]}
           ></Text>
         </View>
@@ -242,7 +198,6 @@ const SettingsScreen = () => {
               label="Target "
               temperature={pmTemperature}
               onValueChange={setPmTemperature}
-              // onValueChange={(value) => setPmTemperature(value)}
             />
             <TouchableOpacity
               style={styles.timeReset}
@@ -272,8 +227,6 @@ const SettingsScreen = () => {
             </TouchableOpacity>
           </>
         )}
-        {/* Add this line to conditionally render the TimePicker components END */}
-
         {Reset && ( // Add this line to conditionally render the TimePicker components START
           <>
             <Text style={styles.temperatureText}>

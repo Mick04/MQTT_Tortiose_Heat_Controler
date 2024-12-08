@@ -18,7 +18,6 @@ const CoolSideGraph = () => {
   const [coolSide, setCoolSideTemp] = useState("");
   const [gaugeHours, setGaugeHours] = useState(0);
   const [gaugeMinutes, setGaugeMinutes] = useState(0);
-  const [inputValue, setInputValue] = useState("");
   const [isConnected, setIsConnected] = useState(false);
   const [data, setData] = useState([
     { value: -10, label: "10:00", dataPointText: "-10 c˚" },
@@ -143,7 +142,7 @@ const CoolSideGraph = () => {
           ? "Connected to MQTT Broker"
           : "Disconnected from MQTT Broker"}
       </Text>
-      <CustomLineChart data={data} GraphTextcolor={'green'} />
+      <CustomLineChart data={data} GraphTextcolor={'green'} curved={true} />
       <TouchableOpacity
         style={styles.reconnectButton}
         onPress={handleReconnect}

@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   Text,
   View,
-  Alert,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -20,7 +19,7 @@ const Heater_ON_OFF_Graph = () => {
   const [gaugeMinutes, setGaugeMinutes] = useState(0);
   const [isConnected, setIsConnected] = useState(false);
   const [data, setData] = useState([
-    { value: 0, label: "10:00", dataPointText: "OFF" },
+    // { value: 0, label: "10:00", dataPointText: "OFF" },
   ]);
 
   // Define the onMessageArrived callback
@@ -145,7 +144,7 @@ const textColor = "blue";
             : "Disconnected from MQTT Broker"}
         </Text>
       </View>
-      <CustomLineChart data={data} textcolor1={textColor} />
+      <CustomLineChart data={data} textcolor1={textColor} curved={false} />
       <TouchableOpacity
         style={styles.reconnectButton}
         onPress={handleReconnect}

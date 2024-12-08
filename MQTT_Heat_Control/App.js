@@ -1,5 +1,4 @@
 // In App.js in a new project
-
 import * as React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { SafeAreaView, StyleSheet, Platform, StatusBar } from "react-native";
@@ -26,8 +25,8 @@ function App() {
           tabBarOptions={{
             activeTintColor: "red", // Change this to your desired active tab text color
             inactiveTintColor: "blue", // Change this to your desired inactive tab text color
-            labelStyle: { fontSize: 14 }, // Customize the label style
-            indicatorStyle: { backgroundColor: 'red' }, // Customize the tab bar underline
+            labelStyle: { fontSize: 16 }, // Customize the label style
+            indicatorStyle: { backgroundColor: "red" }, // Customize the tab bar underline
             style: { backgroundColor: "white" }, // Customize the tab bar background color
           }}
         >

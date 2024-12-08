@@ -77,8 +77,6 @@ const OutSideGraph = () => {
           mqtt.client.subscribe("outSide");
           mqtt.client.subscribe("gaugeHours");
           mqtt.client.subscribe("gaugeMinutes");
-          // mqtt.client.subscribe("HeaterStatus");
-          // mqtt.client.subscribe("topicTargetTemperature");
         },
         onFailure: (error) => {
           console.error("Failed to connect to MQTT broker", error);
@@ -178,7 +176,7 @@ const OutSideGraph = () => {
             : "Disconnected from MQTT Broker"}
         </Text>
       </View>
-      <CustomLineChart data={data} GraphTextcolor={'blue'} />
+      <CustomLineChart data={data} GraphTextcolor={'blue'} curved={true}/>
       <TouchableOpacity
         style={styles.reconnectButton}
         onPress={handleReconnect}

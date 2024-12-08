@@ -88,12 +88,12 @@ const HeatGraph = () => {
   );
 
   function handleReconnect() {
+    console.log("Gauges line 104 Reconnecting...");
     if (mqttService) {
       mqttService.reconnect();
       mqttService.reconnectAttempts = 0;
     } else {
-      console.error("MQTT Service is not initialized");
-      
+      console.log("Gauges line 110 MQTT Service is not initialized");
     }
   }
 
@@ -124,6 +124,26 @@ const HeatGraph = () => {
     saveData();
   }, [data]);
 
+  const addDataPoint = () => {
+    const newValue = parseFloat(inputValue);
+    if (isNaN(newValue)) {
+      Alert.alert("Invalid input", "Please enter a valid number", [
+        { text: "OK" },
+      ]);
+      return;
+    }
+    const newLabel = new Date().toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    const newDataPoint = {
+      value: newValue,
+      label: newLabel,
+      dataPointText: `${newValue} c˚`,
+    };
+    setData([...data, newDataPoint]);
+    setInputValue("");
+  };
   return (
     <SafeAreaView style={styles.graphContainer}>
       <View>
@@ -146,7 +166,7 @@ const HeatGraph = () => {
             : "Disconnected from MQTT Broker"}
         </Text>
       </View>
-      <CustomLineChart data={data} GraphTextcolor={"red"} />
+      <CustomLineChart data={data} GraphTextcolor={"red"} curved={true} />
       <TouchableOpacity
         style={styles.reconnectButton}
         onPress={handleReconnect}

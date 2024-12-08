@@ -11,8 +11,6 @@ import { useFocusEffect } from "@react-navigation/native";
 import MqttService from "./MqttService";
 import { styles } from "../Styles/styles";
 const GaugeScreen = () => {
-  console.log("Gauges line 13 TemperatureGraph");
-
   const [mqttService, setMqttService] = useState(null);
   const [outSide, setOutSideTemp] = useState("");
   const [coolSide, setCoolSideTemp] = useState("");
@@ -25,16 +23,15 @@ const GaugeScreen = () => {
 
   // Define the onMessageArrived callback
   const onMessageArrived = useCallback((message) => {
-    //console.log("Gauges line 28 Message received: ", message.payloadString);
     switch (message.destinationName) {
       case "outSide":
-        setOutSideTemp(parseInt(message.payloadString));
+        setOutSideTemp(parseFloat(message.payloadString).toFixed(1));
         break;
       case "coolSide":
-        setCoolSideTemp(parseInt(message.payloadString));
+        setCoolSideTemp(parseFloat(message.payloadString).toFixed(1));
         break;
       case "heater":
-        setHeaterTemp(parseInt(message.payloadString));
+        setHeaterTemp(parseFloat(message.payloadString).toFixed(1));
         break;
       case "gaugeHours":
         setGaugeHours(parseInt(message.payloadString));
@@ -48,10 +45,6 @@ const GaugeScreen = () => {
         break;
       case "TargetTemperature":
         setTargetTemperature(parseInt(message.payloadString));
-        console.log(
-          "Gauges line 52 TargetTemperature: ",
-          targetTemperature
-        );
         break;
       default:
         console.log("Unknown topic:", message.destinationName);

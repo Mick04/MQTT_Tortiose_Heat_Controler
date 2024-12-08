@@ -4,7 +4,7 @@ import { LineChart } from "react-native-gifted-charts";
 import { useFocusEffect } from "@react-navigation/native";
 import { styles } from "../Styles/styles";
 
-const CustomLineChart = ({ data, GraphTextcolor }) => {
+const CustomLineChart = ({ data, GraphTextcolor,curved }) => {
   const scrollViewRef = useRef(null);
 
   const scrollToEnd = () => {
@@ -76,9 +76,7 @@ const CustomLineChart = ({ data, GraphTextcolor }) => {
           showScrollIndicator={true}
           yAxisMinValue={-10} // Ensure y-axis starts from =10
           yAxisMaxValue={40} // Ensure y-axis ends at 30
-          curved={true} // Make the line points curved
-          //paddingBottom={50} // Add padding to the top of the graph
-          //paddingTop={50} // Add padding to the bottom of the graph
+          curved={curved} // Make the line points curved
         />
       </ScrollView>
     </View>
