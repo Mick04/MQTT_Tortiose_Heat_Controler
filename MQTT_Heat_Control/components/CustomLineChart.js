@@ -1,3 +1,4 @@
+//CustomLineChart.js
 import React, { useRef, useEffect } from "react";
 import { View, ScrollView, Text } from "react-native";
 import { LineChart } from "react-native-gifted-charts";

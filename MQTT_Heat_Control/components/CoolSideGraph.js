@@ -1,3 +1,9 @@
+//CoolSideGraph.js is a functional component that displays a 
+//line chart of the temperature data received from the MQTT broker.
+// The component uses the MqttService class to connect to the MQTT 
+//broker and subscribe to the "coolSide" topic to receive 
+//temperature data. The received temperature data is then 
+//displayed in a line chart using the CustomLineChart component.
 import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect, useCallback } from "react";
 import {

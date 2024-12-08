@@ -1,3 +1,13 @@
+//HeaterGraph.js is a functional component that displays 
+//the heater temperature in a line chart. The component uses 
+//the MqttService class to connect to the MQTT broker and 
+//subscribe to the "heater" topic to receive real-time, 
+//temperature data. The component also displays the current
+// time in hours and minutes, as well as the connection status 
+//to the MQTT broker. The line chart is rendered using the 
+//CustomLineChart component, which is a reusable component that 
+//accepts an array of data points to display the temperature values
+// over time.
 import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect, useCallback } from "react";
 import {

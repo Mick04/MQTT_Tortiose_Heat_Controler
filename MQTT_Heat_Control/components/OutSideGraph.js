@@ -1,3 +1,9 @@
+//outSideGraph.js is a functional component that will display the 
+//outside temperature in a line graph. 
+//The graph will update in real-time as new temperature data 
+//is received from the MQTT broker,and Mysql database. 
+//The graph will also display the time of each data point on 
+//the x-axis.
 import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect, useCallback } from "react";
 import {

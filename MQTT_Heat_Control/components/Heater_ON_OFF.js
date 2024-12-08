@@ -1,3 +1,11 @@
+//Heater_ON_OFF.js is a functional component that displays a line 
+//chart of the heater status. The component uses the MqttService 
+//class to connect to an MQTT broker and subscribe to topics 
+//related to the heater status. The component also saves and 
+//loads data using AsyncStorage to persist the chart data 
+//between app sessions. The component includes a button to 
+//reconnect to the MQTT broker if the connection is lost.
+
 import { StatusBar } from "expo-status-bar";
 import React, { useState, useEffect, useCallback } from "react";
 import {
