@@ -104,10 +104,10 @@ const SettingsScreen = () => {
           mqtt.subscribe("targetTemperature");
         },
         onFailure: (error) => {
-          console.error(
-            "Settings line 143 Failed to connect to MQTT broker ",
-            error
-          );
+          // console.error(
+          //   "Settings line 143 Failed to connect to MQTT broker ",
+          //   error
+          // );
           setIsConnected(false);
         },
       });
@@ -121,7 +121,7 @@ const SettingsScreen = () => {
         console.log("GaugeScreen is unfocused, cleaning up...");
         // Disconnect MQTT when component unmounts
         if (mqtt) {
-          console.log("Settings line 156 Disconnecting MQTT");
+          // console.log("Settings line 156 Disconnecting MQTT");
           mqtt.disconnect();
         }
         setIsConnected(false); // Reset connection state
@@ -144,7 +144,7 @@ const SettingsScreen = () => {
         targetTemperature
       );
     } else {
-      console.error("Settings line 179 mqttService is not initialized yet.");
+      // console.error("Settings line 179 mqttService is not initialized yet.");
     }
   }
 

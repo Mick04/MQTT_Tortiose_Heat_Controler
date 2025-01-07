@@ -47,7 +47,7 @@ const GaugeScreen = () => {
         setTargetTemperature(parseInt(message.payloadString));
         break;
       default:
-        console.log("Unknown topic:", message.destinationName);
+        // console.log("Unknown topic:", message.destinationName);
     }
   }, []);
 
@@ -57,12 +57,12 @@ const GaugeScreen = () => {
 
       // Initialize the MQTT service
       const mqtt = new MqttService(onMessageArrived, setIsConnected);
-      console.log("line 55 TemperatureGraph ");
+      // console.log("line 55 TemperatureGraph ");
       mqtt.connect("Tortoise", "Hea1951Ter", {
         onSuccess: () => {
-          console.log(
-            "Settings line 76 TemperatureGraph Connected to MQTT broker"
-          );
+          // console.log(
+          //   "Settings line 76 TemperatureGraph Connected to MQTT broker"
+          // );
           setIsConnected(true);
           mqtt.client.subscribe("outSide");
           mqtt.client.subscribe("coolSide");
@@ -73,7 +73,7 @@ const GaugeScreen = () => {
           mqtt.client.subscribe("TargetTemperature");
         },
         onFailure: (error) => {
-          console.error("Failed to connect to MQTT broker", error);
+          // console.error("Failed to connect to MQTT broker", error);
           setIsConnected(false);
         },
       });
@@ -84,7 +84,7 @@ const GaugeScreen = () => {
         console.log("GaugeScreen is unfocused, cleaning up...");
         // Disconnect MQTT when the screen is unfocused
         if (mqtt) {
-          console.log("Gauges line 97 Disconnecting MQTT");
+          // console.log("Gauges line 97 Disconnecting MQTT");
           mqtt.disconnect();
         }
         setIsConnected(false); // Reset connection state
@@ -93,12 +93,12 @@ const GaugeScreen = () => {
   );
 
   function handleReconnect() {
-    console.log("Gauges line 104 Reconnecting...");
+    // console.log("Gauges line 104 Reconnecting...");
     if (mqttService) {
       mqttService.reconnect();
       mqttService.reconnectAttempts = 0;
     } else {
-      console.log("Gauges line 110 MQTT Service is not initialized");
+      // console.log("Gauges line 110 MQTT Service is not initialized");
     }
   }
   return (
