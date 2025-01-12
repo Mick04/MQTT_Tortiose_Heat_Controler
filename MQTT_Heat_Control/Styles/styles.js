@@ -150,4 +150,12 @@ export const styles = StyleSheet.create({
     marginTop: 5,
     paddingTop: 150,
   },
+  homeHeader: {
+    fontSize: 24,
+    color: "red",
+    marginBottom: 15,
+    fontStyle: "italic",
+    fontFamily: "sans-serif",
+    textDecorationLine: "underline",
+  },
 });

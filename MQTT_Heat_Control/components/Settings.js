@@ -151,7 +151,7 @@ const SettingsScreen = () => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <SafeAreaView style={styles.container}>
-        <Text style={styles.heading}>MQTT_Heat_Control</Text>
+        <Text style={styles.heading}>MQTT_Heat_Control ESP32</Text>
         <Text style={styles.heading}>Settings</Text>
         <Text style={styles.timeHeader}>
           If time is incorrect, check housing
