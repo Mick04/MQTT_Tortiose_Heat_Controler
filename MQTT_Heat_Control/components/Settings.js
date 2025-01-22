@@ -50,6 +50,7 @@ const SettingsScreen = () => {
   const handleOnPress = () => {
     setReset(!Reset);
     if (!Reset) {
+      console.log("Settings line 653 Resetting...");
       handlePublishMessage(); // Invoke the function here
     }
   };
@@ -88,6 +89,7 @@ const SettingsScreen = () => {
   }, []);
   useFocusEffect(
     useCallback(() => {
+      console.log("SettingsScreen is focused");
       // Initialize the MQTT service
       const mqtt = new MqttService(onMessageArrived, { setIsConnected });
       mqtt.connect("Tortoise", "Hea1951Ter", {
@@ -118,7 +120,7 @@ const SettingsScreen = () => {
        * ******************************************************************/
 
       return () => {
-        console.log("GaugeScreen is unfocused, cleaning up...");
+        console.log("SettingsScreen is unfocused, cleaning up...");
         // Disconnect MQTT when component unmounts
         if (mqtt) {
           // console.log("Settings line 156 Disconnecting MQTT");
@@ -151,16 +153,16 @@ const SettingsScreen = () => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <SafeAreaView style={styles.container}>
-        <Text style={styles.heading}>MQTT_Heat_Control ESP32</Text>
+        <Text style={styles.heading}>MQTT_Heat_Control</Text>
         <Text style={styles.heading}>Settings</Text>
         <Text style={styles.timeHeader}>
           If time is incorrect, check housing
         </Text>
         <View>
-        <Text style={styles.timeText}>Hours: Minutes</Text>
-        <Text style={styles.time}>
-          {gaugeHours}:{gaugeMinutes.toString().padStart(2, "0")}
-        </Text>
+          <Text style={styles.timeText}>Hours: Minutes</Text>
+          <Text style={styles.time}>
+            {gaugeHours}:{gaugeMinutes.toString().padStart(2, "0")}
+          </Text>
         </View>
         <TouchableOpacity style={styles.reset} onPress={handleOnPress}>
           <Text style={styles.header}>
@@ -176,11 +178,7 @@ const SettingsScreen = () => {
           {isConnected ? "Connected" : "Disconnected"}
         </Text>
         <View>
-          <Text
-            style={[
-              styles.TargetTempText,
-            ]}
-          ></Text>
+          <Text style={[styles.TargetTempText]}></Text>
         </View>
 
         {!Reset && ( // Add this line to conditionally render the TimePicker components START
@@ -191,7 +189,11 @@ const SettingsScreen = () => {
               <TemperaturePicker
                 label="Am Target "
                 temperature={amTemperature}
-                onValueChange={setAmTemperature}
+               // onValueChange={setAmTemperature}
+               onValueChange={(value) => {
+                console.log("settings line 238",value);
+                setAmTemperature(value);
+                }}
               />
             </View>
             <TemperaturePicker

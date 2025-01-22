@@ -22,12 +22,12 @@ function App() {
       <NavigationContainer>
         <Tab.Navigator
           initialRouteName="Home"
-          tabBarOptions={{
-            activeTintColor: "red", // Change this to your desired active tab text color
-            inactiveTintColor: "blue", // Change this to your desired inactive tab text color
-            labelStyle: { fontSize: 16 }, // Customize the label style
-            indicatorStyle: { backgroundColor: "red" }, // Customize the tab bar underline
-            style: { backgroundColor: "white" }, // Customize the tab bar background color
+          screenOptions={{
+            tabBarActiveTintColor: "red",
+            tabBarInactiveTintColor: "blue",
+            tabBarLabelStyle: { fontSize: 16 },
+            tabBarIndicatorStyle: { backgroundColor: "red" },
+            tabBarStyle: { backgroundColor: "white" },
           }}
         >
           <Tab.Screen name="Home" component={HomeScreen} />
