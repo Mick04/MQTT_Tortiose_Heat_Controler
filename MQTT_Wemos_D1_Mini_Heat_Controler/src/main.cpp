@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
-#include <pubsubclient.h>
+#include <PubSubClient.h>
 #include <Adafruit_Sensor.h>
 #include <OneWire.h>
 #include <WiFiUdp.h>
