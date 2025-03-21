@@ -79,6 +79,7 @@ const CoolSideGraph = () => {
 
       return () => {
         // Disconnect MQTT when the screen is unfocused
+        console.log("coolside is unfocused, cleaning up...");
         if (mqtt) {
           mqtt.disconnect();
         }
