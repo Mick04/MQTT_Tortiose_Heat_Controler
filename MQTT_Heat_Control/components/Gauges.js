@@ -26,12 +26,15 @@ const GaugeScreen = () => {
     switch (message.destinationName) {
       case "outSide":
         setOutSideTemp(parseFloat(message.payloadString).toFixed(1));
+        console.log("Gauges line 32 outSide: ", outSide);
         break;
       case "coolSide":
         setCoolSideTemp(parseFloat(message.payloadString).toFixed(1));
+        console.log("Gauges line 36 coolSide: ", coolSide);
         break;
       case "heater":
         setHeaterTemp(parseFloat(message.payloadString).toFixed(1));
+        console.log("Gauges line 40 heater: ", heater);
         break;
       case "gaugeHours":
         setGaugeHours(parseInt(message.payloadString));
