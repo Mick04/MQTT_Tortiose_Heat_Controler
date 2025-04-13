@@ -69,7 +69,7 @@ const textColor = "blue";
           mqtt.client.subscribe("gaugeMinutes");
         },
         onFailure: (error) => {
-          // console.error("Failed to connect to MQTT broker", error);
+          console.error("Failed to connect to MQTT broker", error);
           setIsConnected(false);
         },
       });
@@ -91,7 +91,7 @@ const textColor = "blue";
       mqttService.reconnect();
       mqttService.reconnectAttempts = 0;
     } else {
-      // console.log("Heater ON/OFF line 110 MQTT Service is not initialized");
+      console.log("Heater ON/OFF line 110 MQTT Service is not initialized");
     }
   }
 
@@ -103,7 +103,7 @@ const textColor = "blue";
           setData(JSON.parse(savedData));
         }
       } catch (error) {
-        // console.error("Failed to load data", error);
+        console.error("Failed to load data", error);
       }
     };
 
@@ -115,7 +115,7 @@ const textColor = "blue";
       try {
         await AsyncStorage.setItem("chartData", JSON.stringify(data));
       } catch (error) {
-        // console.error("Failed to save data", error);
+        console.error("Failed to save data", error);
       }
     };
 

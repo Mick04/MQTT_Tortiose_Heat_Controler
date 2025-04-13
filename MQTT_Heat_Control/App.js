@@ -23,11 +23,11 @@ function App() {
         <Tab.Navigator
           initialRouteName="Home"
           screenOptions={{
-            tabBarActiveTintColor: "red",
-            tabBarInactiveTintColor: "blue",
-            tabBarLabelStyle: { fontSize: 16 },
-            tabBarIndicatorStyle: { backgroundColor: "red" },
-            tabBarStyle: { backgroundColor: "white" },
+            tabBarActiveTintColor: "red", // Change this to your desired active tab text color
+            tabBarInactiveTintColor: "blue", // Change this to your desired inactive tab text color
+            tabBarLabelStyle: { fontSize: 6 }, // Customize the label style
+            tabBarIndicatorStyle: { backgroundColor: "red" }, // Customize the tab bar underline
+            tabBarStyle: { backgroundColor: "white" }, // Customize the tab bar background color
           }}
         >
           <Tab.Screen name="Home" component={HomeScreen} />

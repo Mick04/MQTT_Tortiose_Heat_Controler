@@ -59,7 +59,7 @@ const HeatGraph = () => {
 
   useFocusEffect(
     useCallback(() => {
-      console.log("Heater is focused");
+
       // Initialize the MQTT service
       const mqtt = new MqttService(onMessageArrived, setIsConnected);
       mqtt.connect("Tortoise", "Hea1951Ter", {
@@ -79,7 +79,6 @@ const HeatGraph = () => {
 
       return () => {
         // Disconnect MQTT when the screen is unfocused
-        console.log("Heater is unfocused, cleaning up...");
         if (mqtt) {
           mqtt.disconnect();
         }

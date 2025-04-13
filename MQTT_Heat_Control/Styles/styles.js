@@ -6,10 +6,11 @@ export const styles = StyleSheet.create({
     flexGrow: 1,
     alignItems: "center",
     marginTop: 2,
-    paddingTop: 50,
+    paddingTop: 5,
+    paddingBottom: 50,
   },
   heading: {
-    fontSize: 24,
+    fontSize: 16,
     color: "red",
     marginBottom: 15,
     fontStyle: "italic",
@@ -74,11 +75,13 @@ export const styles = StyleSheet.create({
   },
   connectionStatus: {
     fontSize: 20,
-    margin: 20,
+    marignTop: 120,
+    marginBottom: -80,
   },
   pickerContainer: {
     fontSize: 10,
     color: "brown",
+    
     marginBottom: 10,
   },
   temperatureText: {
@@ -141,21 +144,14 @@ export const styles = StyleSheet.create({
   graphContainer: {
     flexGrow: 1,
     alignItems: "center",
-    marginTop: 50,
-    paddingTop: 50,
+    marginTop: 0,
+    paddingTop: 0,
   },
   lineGraphContainer: {
     flexGrow: 1,
     alignItems: "center",
-    marginTop: 5,
-    paddingTop: 150,
-  },
-  homeHeader: {
-    fontSize: 24,
-    color: "red",
-    marginBottom: 15,
-    fontStyle: "italic",
-    fontFamily: "sans-serif",
-    textDecorationLine: "underline",
+    marginTop: 160,
+    paddingTop: 70,
+    paddingBottom: 10,
   },
 });

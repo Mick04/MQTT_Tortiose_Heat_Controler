@@ -70,7 +70,7 @@ const CoolSideGraph = () => {
           mqtt.client.subscribe("gaugeMinutes");
         },
         onFailure: (error) => {
-          // console.error("Failed to connect to MQTT broker", error);
+          console.error("Failed to connect to MQTT broker", error);
           setIsConnected(false);
         },
       });
@@ -79,7 +79,6 @@ const CoolSideGraph = () => {
 
       return () => {
         // Disconnect MQTT when the screen is unfocused
-        console.log("coolside is unfocused, cleaning up...");
         if (mqtt) {
           mqtt.disconnect();
         }
@@ -93,7 +92,7 @@ const CoolSideGraph = () => {
       mqttService.reconnect();
       mqttService.reconnectAttempts = 0;
     } else {
-      // console.error("MQTT service is not initialized");
+      console.error("MQTT service is not initialized");
     }
   }
 
@@ -105,7 +104,7 @@ const CoolSideGraph = () => {
           setData(JSON.parse(savedData));
         }
       } catch (error) {
-        // console.error("Failed to load data", error);
+        console.error("Failed to load data", error);
       }
     };
 
@@ -117,7 +116,7 @@ const CoolSideGraph = () => {
       try {
         await AsyncStorage.setItem("chartData", JSON.stringify(data));
       } catch (error) {
-        // console.error("Failed to save data", error);
+        console.error("Failed to save data", error);
       }
     };
 
