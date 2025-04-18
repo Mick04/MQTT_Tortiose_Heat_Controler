@@ -5,7 +5,7 @@ export const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     alignItems: "center",
-    marginTop: 2,
+    marginTop: 112,
     paddingTop: 5,
     paddingBottom: 50,
   },
@@ -67,7 +67,7 @@ export const styles = StyleSheet.create({
     backgroundColor: "blue",
     padding: 10,
     margin: 10,
-    borderRadius: 5,
+    borderRadius: 50,
   },
   reconnectText: {
     color: "white",
@@ -76,16 +76,16 @@ export const styles = StyleSheet.create({
   connectionStatus: {
     fontSize: 20,
     marignTop: 120,
-    marginBottom: -80,
+    marginBottom: 10,
   },
   pickerContainer: {
     fontSize: 10,
     color: "brown",
-    
+
     marginBottom: 10,
   },
   temperatureText: {
-    // padding: 20,
+    padding: 20,
     marginBottom: 10,
     fontSize: 20,
     color: "blue",
@@ -144,7 +144,7 @@ export const styles = StyleSheet.create({
   graphContainer: {
     flexGrow: 1,
     alignItems: "center",
-    marginTop: 0,
+    marginTop: 100,
     paddingTop: 0,
   },
   lineGraphContainer: {
